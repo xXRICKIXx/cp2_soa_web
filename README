@@ -1,0 +1,87 @@
+# Checkpoint 2 — API ReST de Pedidos (Spring Boot)
+
+**Disciplina:** Arquitetura SOA e Web Services
+**Professor:** Carlos Eduardo Machado de Oliveira
+
+## Integrantes do grupo
+
+| Nome | RM |
+|------|----|
+|Henrique Celso Moura da Paixão Filho| RM: 559687|
+
+
+## Tecnologias
+
+Java 21 · Spring Boot 3.5.6 · Spring Web · Spring Data JPA · Validation · Flyway · H2 (em memória) · Lombok · DevTools
+
+## Estrutura
+
+```
+src/main/java/br/com/fiap/checkpoint2
+├── Checkpoint2Application.java
+├── controller   (PedidoController, ApiExceptionHandler)
+├── model        (Pedido)
+├── repository   (PedidoRepository)
+└── service      (PedidoService)
+src/main/resources
+├── application.properties
+└── db/migration/V1__criar_tabela_pedidos.sql
+```
+
+## Como executar
+
+Requisitos: JDK 21+ e Maven 3.9+ (ou uma IDE com suporte a Maven).
+
+```bash
+mvn spring-boot:run
+```
+
+- API: http://localhost:8080/pedidos
+- Console do H2: http://localhost:8080/h2-console
+  (JDBC URL `jdbc:h2:mem:checkpoint2db`, usuário `sa`, senha em branco)
+
+## Entidade `Pedido`
+
+| Campo | Tipo | Regra |
+|-------|------|-------|
+| id | Long | chave primária, gerada automaticamente |
+| clienteNome | String | obrigatório (não nulo / não vazio) |
+| dataPedido | LocalDate | preenchida automaticamente com a data atual |
+| valorTotal | double | não pode ser negativo |
+
+## Endpoints
+
+| Método | URL | Descrição | Respostas |
+|--------|-----|-----------|-----------|
+| GET | `/pedidos` | Lista todos os pedidos | 200 |
+| GET | `/pedidos/{id}` | Busca pedido pelo ID | 200 / 404 |
+| POST | `/pedidos` | Cria um pedido | 201 / 400 |
+| PUT | `/pedidos/{id}` | Atualiza um pedido | 200 / 400 / 404 |
+| DELETE | `/pedidos/{id}` | Remove um pedido | 204 / 404 |
+
+## Testes manuais (curl)
+
+```bash
+# 1. Criar
+curl -i -X POST http://localhost:8080/pedidos -H "Content-Type: application/json" \
+  -d '{"clienteNome":"Maria Silva","valorTotal":150.75}'
+
+# 2. Listar
+curl -i http://localhost:8080/pedidos
+
+# 3. Buscar por ID
+curl -i http://localhost:8080/pedidos/1
+
+# 4. Atualizar
+curl -i -X PUT http://localhost:8080/pedidos/1 -H "Content-Type: application/json" \
+  -d '{"clienteNome":"Maria S. Souza","valorTotal":200.00}'
+
+# 5. Excluir
+curl -i -X DELETE http://localhost:8080/pedidos/1
+
+# Validações (400)
+curl -i -X POST http://localhost:8080/pedidos -H "Content-Type: application/json" \
+  -d '{"clienteNome":"","valorTotal":-10}'
+```
+
+Uma coleção pronta para importar no Postman está em `postman/Checkpoint2.postman_collection.json`.
